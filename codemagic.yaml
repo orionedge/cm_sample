@@ -64,7 +64,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - $USER_EMAIL
+          - yhiamdan@gmail.com
       slack:
         channel: '#build-notifications'
         notify_on_build_start: true
