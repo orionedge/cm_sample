@@ -65,6 +65,9 @@ workflows:
       email:
         recipients:
           - yhiamdan@gmail.com
+        notify:
+          success: true
+          failure: true
       slack:
         channel: '#build-notifications'
         notify_on_build_start: true
