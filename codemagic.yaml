@@ -1,0 +1,142 @@
+workflows:
+  pre-check:
+    name: Pre-check
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+    triggering:
+      events:
+        - pull_request
+      branch_patterns:
+        - pattern: "master"
+          include: true
+    when:
+      changeset:
+        includes:
+          - '.'
+        excludes:
+          - '**/*.md' #Ignore md files
+    cache:
+      cache_paths:
+        - ~/.gradle/caches
+        - ~/.pub-cache
+        - ios/Pods
+        - $FLUTTER_ROOT/.pub-cache
+    scripts:
+      - name: Block skip-checks
+        script: |
+          # Fail if commit message contains "skip-checks: true"
+          if git log -1 --pretty=%B | grep -q "skip-checks: true"; then
+            echo "❌ Skipping checks is not allowed!"
+            exit 1
+          fi
+      - name: Clone and Checkout
+        script: |
+          git clone "$CM_REPO_URL" .
+          git checkout "$CM_COMMIT"
+
+      - name: Install Dependencies
+        script: |
+          flutter pub get
+
+      - name: Analyze Code
+        script: |
+          echo "🛠️ Running Flutter analysis..."
+          flutter analyze --fatal-infos --fatal-warnings .
+          # No need for explicit exit check - flutter analyze exits non-zero on failure
+
+      - name: Run Changed Tests
+        script: |
+          # Include both test/ and integration_test/ folders
+          CHANGED_TESTS=$(git diff --name-only HEAD^ HEAD -- "test/*.dart" "integration_test/*.dart")
+
+          if [ -z "$CHANGED_TESTS" ]; then
+            echo "✅ No test files modified. Skipping tests."
+            exit 0
+          fi
+
+          echo "🔍 Running tests for:"
+          echo "$CHANGED_TESTS"
+
+          # Run all changed tests in one command (faster than loop)
+          flutter test $CHANGED_TESTS
+
+    publishing:
+      email:
+        recipients:
+          - $USER_EMAIL
+      slack:
+        channel: '#build-notifications'
+        notify_on_build_start: true
+        notify:
+          success: true
+          failure: true
+#  comprehensive-check:
+#    name: Comprehensive Check
+#    environment:
+#      flutter: stable
+#    triggering:
+#      events:
+#        - pull_request
+#      branch_patterns:
+#        - pattern: "master"
+#          include: true
+#    cache:
+#      cache_paths:
+#        - ~/.gradle/caches
+#        - ~/.pub-cache
+#        - ios/Pods
+#        - $FLUTTER_ROOT/.pub-cache
+#    scripts:
+#      - name: Clone and Checkout
+#        script: |
+#          git clone $CM_REPO_URL .
+#          git checkout $CM_COMMIT
+#
+#      - name: Install Dependencies
+#        script: |
+#          flutter pub get
+#
+#      - name: Lint Code
+#        script: |
+#          flutter analyze .
+#
+#      - name: Run Tests with Coverage
+#        script: |
+#          flutter test --coverage --platform android
+#          flutter test --coverage --platform ios
+#
+#      - name: Build Android Debug
+#        script: |
+#          flutter build apk --debug
+#
+#      - name: Build iOS Debug
+#        script: |
+#          flutter build ios --debug --no-codesign
+#
+#      - name: Screenshot Tests
+#        script: |
+#          flutter drive --driver test_driver/screenshot_test.dart --target integration_test/screenshot_test.dart
+#
+#      - name: Mutation Testing
+#        script: |
+#          # Install mutest (add to pubspec.yaml)
+#          dart pub global activate mutest
+#          # Run only on changed files
+#          git diff --name-only HEAD^..HEAD -- '*.dart' | xargs mutest
+#
+#    artifacts:
+#      - build/**/outputs/**/*.apk
+#      - build/ios/ipa/*.ipa
+#      - coverage_report/**/*
+#
+#    publishing:
+#      email:
+#        recipients:
+#          - $USER_EMAIL
+#      slack:
+#        channel: '#build-notifications'
+#        notify_on_build_start: true
+#        notify:
+#          success: true
+#          failure: true
