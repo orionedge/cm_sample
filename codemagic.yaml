@@ -118,7 +118,7 @@ workflows:
 
       - name: Mutation Testing
         script: |
-          dart run mutation_test $(echo $(git diff --name-only HEAD HEAD~1 | grep -v "^test" | grep ".dart$" | tr '\n' ' '))
+          dart run mutation_test $(echo $(git diff --name-only HEAD HEAD~1 | grep -v "^test" | grep ".dart$" | tr '\n' ' ')) --rules=config.xml
 
       - name: Build Android Debug
         script: |
