@@ -49,6 +49,10 @@ workflows:
       - name: Run Changed Tests
         script: |
           # Include both test/ and integration_test/ folders
+          flutter test --tags=golden --update-goldens
+          git add test/screenshots/golden
+          git commit -m "Update golden files [skip-ci]"
+          git push origin $CM_BRANCH
           CHANGED_TESTS=$(git diff --name-only HEAD^ HEAD -- "test/*.dart" "integration_test/*.dart")
 
           if [ -z "$CHANGED_TESTS" ]; then
@@ -60,7 +64,7 @@ workflows:
           echo "$CHANGED_TESTS"
 
           # Run all changed tests in one command (faster than loop)
-          flutter test $CHANGED_TESTS
+          flutter test $CHANGED_TESTS --update-goldens
 
     publishing:
       email:
