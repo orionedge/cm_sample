@@ -60,7 +60,7 @@ workflows:
           echo "$CHANGED_TESTS"
 
           # Run all changed tests in one command (faster than loop)
-          flutter test $CHANGED_TESTS
+          flutter test $CHANGED_TESTS --update-goldens
 
     publishing:
       email:
