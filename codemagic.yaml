@@ -49,6 +49,7 @@ workflows:
       - name: Run Changed Tests
         script: |
           # Include both test/ and integration_test/ folders
+          flutter test --tags=golden --update-goldens
           CHANGED_TESTS=$(git diff --name-only HEAD^ HEAD -- "test/*.dart" "integration_test/*.dart")
 
           if [ -z "$CHANGED_TESTS" ]; then
