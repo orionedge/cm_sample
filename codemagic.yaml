@@ -40,11 +40,10 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Analyze Code
+      - name: Run Code Analysis
         script: |
           echo "🛠️ Running Flutter analysis..."
           flutter analyze --fatal-infos --fatal-warnings .
-          # No need for explicit exit check - flutter analyze exits non-zero on failure
 
       - name: Run Changed Tests
         script: |
@@ -108,9 +107,10 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Lint Code
+      - name: Run Code Analysis
         script: |
-          flutter analyze .
+          echo "🛠️ Running Flutter analysis..."
+          flutter analyze --fatal-infos --fatal-warnings .
 
       - name: Run Tests with Coverage
         script: |
