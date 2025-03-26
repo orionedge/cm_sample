@@ -75,72 +75,73 @@ workflows:
         notify:
           success: true
           failure: true
-#  comprehensive-check:
-#    name: Comprehensive Check
-#    environment:
-#      flutter: stable
-#    triggering:
-#      events:
-#        - pull_request
-#      branch_patterns:
-#        - pattern: "master"
-#          include: true
-#    cache:
-#      cache_paths:
-#        - ~/.gradle/caches
-#        - ~/.pub-cache
-#        - ios/Pods
-#        - $FLUTTER_ROOT/.pub-cache
-#    scripts:
-#      - name: Clone and Checkout
-#        script: |
-#          git clone $CM_REPO_URL .
-#          git checkout $CM_COMMIT
-#
-#      - name: Install Dependencies
-#        script: |
-#          flutter pub get
-#
-#      - name: Lint Code
-#        script: |
-#          flutter analyze .
-#
-#      - name: Run Tests with Coverage
-#        script: |
-#          flutter test --coverage --platform android
-#          flutter test --coverage --platform ios
-#
-#      - name: Build Android Debug
-#        script: |
-#          flutter build apk --debug
-#
-#      - name: Build iOS Debug
-#        script: |
-#          flutter build ios --debug --no-codesign
-#
-#      - name: Screenshot Tests
-#        script: |
-#          flutter drive --driver test_driver/screenshot_test.dart --target integration_test/screenshot_test.dart
-#
-#      - name: Mutation Testing
-#        script: |
-#          # Install mutest (add to pubspec.yaml)
-#          dart pub global activate mutest
-#          # Run only on changed files
-#          git diff --name-only HEAD^..HEAD -- '*.dart' | xargs mutest
-#
-#    artifacts:
-#      - build/**/outputs/**/*.apk
-#      - build/ios/ipa/*.ipa
-#      - coverage_report/**/*
-#
-#    publishing:
-#      email:
-#        recipients:
-#          - $USER_EMAIL
-#      slack:
-#        channel: '#build-notifications'
-#        notify_on_build_start: true
-#        notify:
-#          success: true
-#          failure: true
+  comprehensive-check:
+    name: Comprehensive Check
+    environment:
+      flutter: stable
+    triggering:
+      events:
+        - pull_request
+      branch_patterns:
+        - pattern: "master"
+          include: true
+    cache:
+      cache_paths:
+        - ~/.gradle/caches
+        - ~/.pub-cache
+        - ios/Pods
+        - $FLUTTER_ROOT/.pub-cache
+    scripts:
+      - name: Check for Comprehensive Flag
+        script: |
+          # Exit early if no [run:comprehensive] tag
+          if ! git log -1 --pretty=%B | grep -q "\[run:comprehensive\]"; then
+            echo "🟡 Skipping comprehensive checks - no flag detected"
+            exit 0  # Graceful exit
+          fi
+      - name: Clone and Checkout
+        script: |
+          git clone $CM_REPO_URL .
+          git checkout $CM_COMMIT
+
+      - name: Install Dependencies
+        script: |
+          flutter pub get
+
+      - name: Lint Code
+        script: |
+          flutter analyze .
+
+      - name: Run Tests with Coverage
+        script: |
+          flutter test --coverage --update-goldens
+
+      - name: Mutation Testing
+        script: |
+          dart run mutation_test $(echo $(git diff --name-only HEAD HEAD~1 | grep -v "^test" | grep ".dart$" | tr '\n' ' '))
+
+      - name: Build Android Debug
+        script: |
+          flutter build apk --debug
+
+      - name: Build iOS Debug
+        script: |
+          flutter build ios --debug --no-codesign
+
+    artifacts:
+      - build/**/outputs/**/*.apk
+      - build/ios/ipa/*.ipa
+      - coverage_report/**/*
+    publishing:
+      email:
+        recipients:
+          - yhiamdan@gmail.com
+        notify:
+          success: true
+          failure: true
+      slack:
+        channel: '#build-notifications'
+        notify_on_build_start: true
+        notify:
+          success: true
+          failure: true
