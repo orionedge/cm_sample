@@ -77,7 +77,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - $EMAIL_DANIEL
+          - yhiamdan@gmail.com
         notify:
           success: true
           failure: true
