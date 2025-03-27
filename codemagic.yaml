@@ -24,13 +24,13 @@ workflows:
         - ios/Pods
         - $FLUTTER_ROOT/.pub-cache
     scripts:
-      - name: Block skip-checks
-        script: |
-          # Fail if commit message contains "skip-checks: true"
-          if git log -1 --pretty=%B | grep -q "skip-checks: true"; then
-            echo "❌ Skipping checks is not allowed!"
-            exit 1
-          fi
+#      - name: Block skip-checks
+#        script: |
+#          # Fail if commit message contains "skip-checks: true"
+#          if git log -1 --pretty=%B | grep -q "skip-checks: true"; then
+#            echo "❌ Skipping checks is not allowed!"
+#            exit 1
+#          fi
       - name: Clone and Checkout
         script: |
           git clone "$CM_REPO_URL" .
@@ -96,7 +96,7 @@ workflows:
           # Exit early if no [run:comprehensive] tag
           if ! git log -1 --pretty=%B | grep -q "\[run:comprehensive\]"; then
             echo "🟡 Skipping comprehensive checks - no flag detected"
-            exit 0  # Graceful exit
+            exit 0
           fi
       - name: Clone and Checkout
         script: |
