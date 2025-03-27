@@ -61,9 +61,6 @@ workflows:
 
       - name: Run Changed Tests
         script: |
-          # Fetch the target branch's latest commit
-          git fetch origin "$CM_PULL_REQUEST_DEST" --depth=1
-          
           # Find the common ancestor commit between source and target branches
           BASE_COMMIT=$(git merge-base HEAD origin/$CM_PULL_REQUEST_DEST)
           
