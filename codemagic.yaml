@@ -3,12 +3,14 @@ workflows:
     name: Pre-check
     instance_type: mac_mini_m2
     environment:
+      groups:
+        - notification_emails
       flutter: stable
     triggering:
       events:
         - pull_request
       branch_patterns:
-        - pattern: "master"
+        - pattern: "**"
           include: true
           source: false
     when:
@@ -26,8 +28,8 @@ workflows:
     scripts:
       - name: Block skip-checks
         script: |
-          # Fail if commit message contains "skip-checks: true"
-          if git log -1 --pretty=%B | grep -q "skip-checks: true"; then
+          # Fail if commit message contains "[skip ci]"
+          if git log -1 --pretty=%B | grep -Eq "\[skip ci\]|\[ci skip\]"; then
             echo "❌ Skipping checks is not allowed!"
             exit 1
           fi
@@ -43,28 +45,39 @@ workflows:
       - name: Run Code Analysis
         script: |
           echo "🛠️ Running Flutter analysis..."
-          flutter analyze --fatal-infos --fatal-warnings .
+          # Get the base commit (when the PR branched off the target branch)
+          BASE_COMMIT=$(git merge-base HEAD origin/$CM_PULL_REQUEST_DEST)
+
+          # Identify changed Dart files (lib/ and test/)
+          CHANGED_DART_FILES=$(git diff --name-only $BASE_COMMIT HEAD -- "lib/*.dart" "test/*.dart")
+
+          if [ -z "$CHANGED_DART_FILES" ]; then
+          echo "✅ No Dart files modified. Skipping analysis."
+          exit 0
+          fi
+          echo "🛠️ Analyzing changed files:"
+          echo "$CHANGED_DART_FILES"
+          flutter analyze --fatal-infos --fatal-warnings $CHANGED_DART_FILES
 
       - name: Run Changed Tests
         script: |
-          # Include test/ folders
-          CHANGED_TESTS=$(git diff --name-only HEAD^ HEAD -- "test/*.dart" "integration_test/*.dart")
-
+          # Find the common ancestor commit between source and target branches
+          BASE_COMMIT=$(git merge-base HEAD origin/$CM_PULL_REQUEST_DEST)
+          
+          # Get changed test files since branching from target
+          CHANGED_TESTS=$(git diff --name-only $BASE_COMMIT HEAD -- "test/*.dart")
+          
           if [ -z "$CHANGED_TESTS" ]; then
             echo "✅ No test files modified. Skipping tests."
             exit 0
           fi
-
-          echo "🔍 Running tests for:"
+          echo "🔍 Running tests for changed files:"
           echo "$CHANGED_TESTS"
-
-          # Run all changed tests in one command (faster than loop)
           flutter test $CHANGED_TESTS --update-goldens
-
     publishing:
       email:
         recipients:
-          - yhiamdan@gmail.com
+          - $EMAIL_DANIEL
         notify:
           success: true
           failure: true
@@ -77,6 +90,8 @@ workflows:
   comprehensive-check:
     name: Comprehensive Check
     environment:
+      groups:
+        - notification_emails
       flutter: stable
     triggering:
       events:
@@ -91,13 +106,6 @@ workflows:
         - ios/Pods
         - $FLUTTER_ROOT/.pub-cache
     scripts:
-      - name: Check for Comprehensive Flag
-        script: |
-          # Exit early if no [run:comprehensive] tag
-          if ! git log -1 --pretty=%B | grep -q "\[run:comprehensive\]"; then
-            echo "🟡 Skipping comprehensive checks - no flag detected"
-            exit 0  # Graceful exit
-          fi
       - name: Clone and Checkout
         script: |
           git clone $CM_REPO_URL .
@@ -131,11 +139,12 @@ workflows:
     artifacts:
       - build/**/outputs/**/*.apk
       - build/ios/ipa/*.ipa
-      - coverage_report/**/*
+      - coverage/*
+      - mutation-test-report/*
     publishing:
       email:
         recipients:
-          - yhiamdan@gmail.com
+          - $EMAIL_DANIEL
         notify:
           success: true
           failure: true

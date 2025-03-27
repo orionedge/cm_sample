@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cm_sample/main.dart';
 void main() {
-  testWidgets('Verify initial UI Looks',
+  testWidgets('Verify initial UI latest',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
@@ -14,7 +14,7 @@ void main() {
     );
   });
 
-  testWidgets('Verify incremented UI Looks',
+  testWidgets('Verify incremented UI latest',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.tap(find.byType(FloatingActionButton));
