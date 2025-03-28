@@ -121,12 +121,23 @@ workflows:
         script: |
           echo "🛠️ Running Flutter analysis..."
           flutter analyze --fatal-infos --fatal-warnings .
+
+      - name: Install lcov (cached)
+        script: |
+          # Check if lcov is already installed (from cache)
+          if ! command -v lcov &> /dev/null; then
+            echo "Installing lcov..."
+            brew install lcov
+          else
+            echo "✅ lcov already installed (cached)"
+          fi
+
       - name: Run Tests with Coverage
         script: |
           flutter test --coverage --update-goldens
+
       - name: Create coverage report
         script: |
-          HOMEBREW_NO_AUTO_UPDATE=1 brew install lcov
           mkdir -p test-results 
           flutter test --coverage --machine > test-results/flutter.json  
           
