@@ -43,3 +43,4 @@ app.*.map.json
 /android/app/release
 /mutation-test-report
 /test/screenshots/failures
+/coverage

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mutations version="1.0">
+    <rules>
+        <literal text="+">
+            <mutation text="-"/>
+            <mutation text="*"/>
+        </literal>
+    </rules>
+
+    <commands>
+        <command group="test" expected-return="0" working-directory="./test">flutter test .</command>
+    </commands>
+</mutations>

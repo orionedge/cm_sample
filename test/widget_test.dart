@@ -11,7 +11,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cm_sample/main.dart';
 
 void main() {
-  testWidgets('Counter increments', (WidgetTester tester) async {
+  testWidgets('MyApp initialization test', (WidgetTester tester) async {
+    // Build MyApp and trigger a frame
+    await tester.pumpWidget(const MyApp());
+
+    // Verify critical elements exist
+    expect(find.byType(MaterialApp), findsOneWidget); // Verify MaterialApp
+    expect(find.byType(MyHomePage), findsOneWidget);
+    expect(find.text('Flutter Demo Home Page'), findsOneWidget);
+  });
+
+  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
