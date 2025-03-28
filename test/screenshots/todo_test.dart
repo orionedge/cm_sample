@@ -90,7 +90,7 @@ void main() {
     );
   });
 
-  testWidgets('Verify Add Todo Dialog Shows Nice', (WidgetTester tester) async {
+  testWidgets('Verify Add Todo Dialog', (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => TodoProvider(),
@@ -107,7 +107,7 @@ void main() {
     );
   });
 
-  testWidgets('Verify Todo Item Edit Mode Nice', (WidgetTester tester) async {
+  testWidgets('Verify Todo Item Edit Mode', (WidgetTester tester) async {
     final provider = TodoProvider();
     provider.addTodo('Item to edit');
 
