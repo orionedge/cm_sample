@@ -130,11 +130,14 @@ workflows:
           mkdir -p test-results 
           flutter test --coverage --machine > test-results/flutter.json  
           
-          code_coverage=$(lcov --list $CM_BUILD_DIR/coverage/lcov.info | sed -n "s/.*Total:|\(.*\)%.*/\1/p")
+          COVERAGE_PERCENT=$(lcov --summary ./coverage/lcov.info 2>&1 | grep 'lines......:' | awk '{print $2}' | sed 's/%//')
           
           echo "Code Coverage: ${code_coverage}% "
-          if (( $(echo "$code_coverage < $ARC_CODE_COVERAGE_TARGET" | bc) ))
-          then { echo "code coverage is less than expected" && exit 1; }
+          if (( $(echo "$COVERAGE_PERCENT < $ARC_CODE_COVERAGE_TARGET" | bc -l) )); then
+            echo "❌ Coverage is $COVERAGE_PERCENT%, below $ARC_CODE_COVERAGE_TARGET%"
+            exit 1
+          else
+            echo "✅ Coverage is $COVERAGE_PERCENT% (>= $ARC_CODE_COVERAGE_TARGET%)"
           fi
         test_report: test-results/flutter.json
 
