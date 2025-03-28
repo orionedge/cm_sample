@@ -29,6 +29,7 @@ workflows:
       - name: Block skip-checks
         script: |
           # Fail if commit message contains "[skip ci]"
+          # How You?
           if git log -1 --pretty=%B | grep -Eq "\[skip ci\]|\[ci skip\]"; then
             echo "❌ Skipping checks is not allowed!"
             exit 1
