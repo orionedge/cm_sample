@@ -121,29 +121,22 @@ workflows:
         script: |
           echo "🛠️ Running Flutter analysis..."
           flutter analyze --fatal-infos --fatal-warnings .
-      - name: Install lcov (cached)
-        script: |
-          # Check if lcov is already installed (from cache)
-          if ! command -v lcov &> /dev/null; then
-            echo "Installing lcov..."
-            brew install lcov
-          else
-            echo "✅ lcov already installed (cached)"
-          fi
-      - name: Check Coverage Threshold
-        script: |
-          COVERAGE_PERCENT=$(lcov --summary ./coverage/lcov.info 2>&1 | grep 'lines......:' | awk '{print $2}' | sed 's/%//')
-          MIN_COVERAGE=$ARC_COVERAGE
-
-          if (( $(echo "$COVERAGE_PERCENT < $MIN_COVERAGE" | bc -l) )); then
-            echo "❌ Coverage is $COVERAGE_PERCENT%, below $MIN_COVERAGE%"
-            exit 1
-          else
-            echo "✅ Coverage is $COVERAGE_PERCENT% (>= $MIN_COVERAGE%)"
-          fi
       - name: Run Tests with Coverage
         script: |
           flutter test --coverage --update-goldens
+      - name: Create coverage report
+        script: |
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install lcov
+          mkdir -p test-results 
+          flutter test --coverage --machine > test-results/flutter.json  
+          
+          code_coverage=$(lcov --list $CM_BUILD_DIR/coverage/lcov.info | sed -n "s/.*Total:|\(.*\)%.*/\1/p")
+          
+          echo "Code Coverage: ${code_coverage}% "
+          if (( $(echo "$code_coverage < $ARC_CODE_COVERAGE_TARGET" | bc) ))
+          then { echo "code coverage is less than expected" && exit 1; }
+          fi
+        test_report: test-results/flutter.json
 
       - name: Mutation Testing
         script: |
@@ -161,6 +154,7 @@ workflows:
       - build/**/outputs/**/*.apk
       - build/ios/ipa/*.ipa
       - coverage/*
+      - test-results/flutter.json
       - mutation-test-report/*
     publishing:
       email:
