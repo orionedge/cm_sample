@@ -1,6 +1,5 @@
 import 'package:cm_sample/todos/todo_list_view.dart';
 import 'package:cm_sample/todos/todo_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
