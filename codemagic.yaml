@@ -128,15 +128,16 @@ workflows:
 
       - name: Create coverage report
         script: |
-          HOMEBREW_NO_AUTO_UPDATE=1 brew install lcov
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install lcov@
           mkdir -p test-results 
-          flutter test --coverage --machine > test-results/flutter.json  
-          LCOV_VER=$(lcov --version)
-          COVERAGE_PERCENT=$(lcov --summary ./coverage/lcov.info 2>&1 | grep 'lines......:' | awk '{print $2}' | sed 's/%//')
-          
-          echo "LCOV VERSION: ${LCOV_VER}% "
+          flutter test --coverage --machine > test-results/flutter.json
+          # Compute coverage
+          LF=$(grep -m1 '^LF:' coverage/lcov.info | cut -d':' -f2)
+          LH=$(grep -m1 '^LH:' coverage/lcov.info | cut -d':' -f2)
+          COVERAGE_PERCENT=$(echo "scale=2; $LH*100/$LF" | bc)
+        
           echo "Code Coverage: ${COVERAGE_PERCENT}% "
-          ls -la ./coverage
+          
           if (( $(echo "$COVERAGE_PERCENT < $ARC_CODE_COVERAGE_TARGET" | bc -l) )); then
             echo "❌ Coverage is $COVERAGE_PERCENT%, below $ARC_CODE_COVERAGE_TARGET%"
             exit 1
