@@ -122,28 +122,21 @@ workflows:
           echo "🛠️ Running Flutter analysis..."
           flutter analyze --fatal-infos --fatal-warnings .
 
-      - name: Install lcov (cached)
-        script: |
-          # Check if lcov is already installed (from cache)
-          if ! command -v lcov &> /dev/null; then
-            echo "Installing lcov..."
-            brew install lcov
-          else
-            echo "✅ lcov already installed (cached)"
-          fi
-
       - name: Run Tests with Coverage
         script: |
           flutter test --coverage --update-goldens
 
       - name: Create coverage report
         script: |
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install lcov
           mkdir -p test-results 
           flutter test --coverage --machine > test-results/flutter.json  
-          
+          LCOV_VER=$(lcov --version)
           COVERAGE_PERCENT=$(lcov --summary ./coverage/lcov.info 2>&1 | grep 'lines......:' | awk '{print $2}' | sed 's/%//')
           
+          echo "LCOV VERSION: ${LCOV_VER}% "
           echo "Code Coverage: ${COVERAGE_PERCENT}% "
+          ls -la ./coverage
           if (( $(echo "$COVERAGE_PERCENT < $ARC_CODE_COVERAGE_TARGET" | bc -l) )); then
             echo "❌ Coverage is $COVERAGE_PERCENT%, below $ARC_CODE_COVERAGE_TARGET%"
             exit 1
