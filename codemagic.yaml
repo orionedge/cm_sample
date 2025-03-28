@@ -132,7 +132,7 @@ workflows:
           
           COVERAGE_PERCENT=$(lcov --summary ./coverage/lcov.info 2>&1 | grep 'lines......:' | awk '{print $2}' | sed 's/%//')
           
-          echo "Code Coverage: ${code_coverage}% "
+          echo "Code Coverage: ${COVERAGE_PERCENT}% "
           if (( $(echo "$COVERAGE_PERCENT < $ARC_CODE_COVERAGE_TARGET" | bc -l) )); then
             echo "❌ Coverage is $COVERAGE_PERCENT%, below $ARC_CODE_COVERAGE_TARGET%"
             exit 1
