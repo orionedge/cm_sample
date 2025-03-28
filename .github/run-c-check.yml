@@ -1,0 +1,16 @@
+name: Trigger Comprehensive Check
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for trigger phrase
+        if: contains(github.event.comment.body, '#run-c-check')
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "x-auth-token: ${{ secrets.CODEMAGIC_API_TOKEN }}" \
+            -d '{"appId": "${{ secrets.CODEMAGIC_APP_ID }}", "workflowId": "comprehensive-check"}' \
+            "https://api.codemagic.io/builds"
