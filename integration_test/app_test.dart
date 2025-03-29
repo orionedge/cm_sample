@@ -9,7 +9,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('End-to-end Test', () {
-    testWidgets('Add, complete, and delete todo', (WidgetTester tester) async {
+    testWidgets('Add, complete, and delete todo item', (WidgetTester tester) async {
       // Start the app
       await tester.pumpWidget(
         ChangeNotifierProvider(
