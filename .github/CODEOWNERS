@@ -1,2 +1,3 @@
 /.github/CODEOWNERS @orionedge
+/.github/run-c-check.yml @orionedge
 codemagic.yaml  @hyperdanyel

@@ -1,6 +1,5 @@
 @Tags(['units'])
 import 'package:cm_sample/todos/todo.dart';
-import 'package:cm_sample/todos/todo_list_screen.dart';
 import 'package:cm_sample/todos/todo_list_view.dart';
 import 'package:cm_sample/todos/todo_provider.dart';
 import 'package:flutter/material.dart';
