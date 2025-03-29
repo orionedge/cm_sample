@@ -1,3 +1,4 @@
+@Tags(["widgets"])
 import 'package:cm_sample/todos/todo_list_screen.dart';
 import 'package:cm_sample/todos/todo_list_view.dart';
 import 'package:cm_sample/todos/todo_provider.dart';

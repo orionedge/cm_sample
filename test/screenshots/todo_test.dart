@@ -1,4 +1,4 @@
-@Tags(['golden'])
+@Tags(['screenshots'])
 import 'package:cm_sample/main.dart';
 import 'package:cm_sample/todos/todo_list_screen.dart';
 import 'package:cm_sample/todos/todo_list_view.dart';
