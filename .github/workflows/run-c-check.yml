@@ -22,7 +22,7 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
 
           BRANCH_NAME=$(echo "$PR_JSON" | jq -r '.head.ref')
-          echo "$BRANCH_NAME"
+          echo "${{ vars.CODEMAGIC_WORKFLOW_ID }}"
           echo "source_branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Trigger Codemagic on Source Branch
@@ -32,7 +32,7 @@ jobs:
             -H "x-auth-token: ${{ secrets.CODEMAGIC_API_TOKEN }}" \
             -d '{
               "appId": "${{ secrets.CODEMAGIC_APP_ID }}",
-              "workflowId": "${{ vars.CODEMAGIC_WORKFLOW_ID }}",
+              "workflowId": "comprehensive-check",
               "branch": "${{ steps.extract-branch.outputs.source_branch }}"
             }' \
             "https://api.codemagic.io/builds"
