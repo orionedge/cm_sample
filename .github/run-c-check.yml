@@ -13,32 +13,34 @@ on:
 jobs:
   trigger:
     runs-on: ubuntu-latest
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '#RunCheck')
+#    if: |
+#      github.event.issue.pull_request &&
+#      contains(github.event.comment.body, '#RunCheck')
 
     steps:
       - name: Extract PR Source Branch
-        id: extract-branch
-        env:
-          PR_NUMBER: ${{ github.event.issue.number }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_JSON=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
-          
-          BRANCH_NAME=$(echo "$PR_JSON" | jq -r '.head.ref')
-          echo "source_branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
-
-      - name: Trigger Codemagic on Source Branch
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -H "x-auth-token: ${{ secrets.CODEMAGIC_API_TOKEN }}" \
-            -d '{
-              "appId": "${{ secrets.CODEMAGIC_APP_ID }}",
-              "workflowId": "${{ secrets.CODEMAGIC_WORKFLOW_ID }}",
-              "branch": "${{ steps.extract-branch.outputs.source_branch }}"
-            }' \
-            "https://api.codemagic.io/builds"
+          echo "Hello Boy"
+#        id: extract-branch
+#        env:
+#          PR_NUMBER: ${{ github.event.issue.number }}
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          PR_JSON=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+#            -H "Accept: application/vnd.github.v3+json" \
+#            "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
+#
+#          BRANCH_NAME=$(echo "$PR_JSON" | jq -r '.head.ref')
+#          echo "source_branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+#
+#      - name: Trigger Codemagic on Source Branch
+#        run: |
+#          curl -X POST \
+#            -H "Content-Type: application/json" \
+#            -H "x-auth-token: ${{ secrets.CODEMAGIC_API_TOKEN }}" \
+#            -d '{
+#              "appId": "${{ secrets.CODEMAGIC_APP_ID }}",
+#              "workflowId": "${{ secrets.CODEMAGIC_WORKFLOW_ID }}",
+#              "branch": "${{ steps.extract-branch.outputs.source_branch }}"
+#            }' \
+#            "https://api.codemagic.io/builds"
