@@ -22,17 +22,27 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
 
           BRANCH_NAME=$(echo "$PR_JSON" | jq -r '.head.ref')
-          echo "${{ vars.CODEMAGIC_WORKFLOW_ID }}"
           echo "source_branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Trigger Codemagic on Source Branch
+        env:
+          CODEMAGIC_API_TOKEN: ${{ secrets.CODEMAGIC_API_TOKEN }}
+          CODEMAGIC_APP_ID: ${{ secrets.CODEMAGIC_APP_ID }}
         run: |
-          curl -X POST \
+          # Use -f to make curl exit with a non-zero status code on HTTP error
+          RESPONSE=$(curl -f -s -o /dev/null -w "%{http_code}" \
+            -X POST \
             -H "Content-Type: application/json" \
-            -H "x-auth-token: ${{ secrets.CODEMAGIC_API_TOKEN }}" \
+            -H "x-auth-token: $CODEMAGIC_API_TOKEN" \
             -d '{
-              "appId": "${{ secrets.CODEMAGIC_APP_ID }}",
-              "workflowId": "comprehensive-check",
-              "branch": "${{ steps.extract-branch.outputs.source_branch }}"
+              "appId": "'"$CODEMAGIC_APP_ID"'",
+              "workflowId": "'comprehensive-check'",
+              "branch": "'"${{ steps.extract-branch.outputs.source_branch }}"'"
             }' \
-            "https://api.codemagic.io/builds"
+            "https://api.codemagic.io/builds")
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Error: Received HTTP status $RESPONSE from Codemagic API."
+            exit 1
+          else
+            echo "Codemagic triggered successfully with HTTP status $RESPONSE."
+          fi

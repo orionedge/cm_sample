@@ -120,7 +120,7 @@ workflows:
 
       - name: Run Code Analysis
         script: |
-          echo "🛠️ Running Flutter analysis..."
+          echo "🛠️ Running Flutter analysis....."
           flutter analyze --fatal-infos --fatal-warnings .
 
       - name: Run Unit Tests With Coverage Report
@@ -158,7 +158,16 @@ workflows:
 
       - name: Mutation Testing
         script: |
-          dart run mutation_test $(echo $(git diff --name-only HEAD HEAD~1 | grep -v "^test" | grep ".dart$" | tr '\n' ' ')) --rules=mutation_test_rules.xml
+          CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep -v "^test" | grep ".dart$" | tr '\n' ' ')
+
+          # Check if CHANGED_FILES is empty
+          if [ -z "$CHANGED_FILES" ]; then
+          echo "No changed Dart files detected. Skipping mutation tests."
+          exit 0
+          else
+          echo "Running mutation tests on: $CHANGED_FILES"
+          dart run mutation_test $CHANGED_FILES --rules=mutation_test_rules.xml
+          fi
 
       - name: Build Android Debug
         script: |
