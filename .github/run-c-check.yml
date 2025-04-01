@@ -2,7 +2,11 @@ name: Trigger Comprehensive Check
 
 on:
   issue_comment:
-    types: [created]
+    types: [created,edited]
+
+  permissions:
+    contents: write
+    actions: write
 
 jobs:
   trigger:
