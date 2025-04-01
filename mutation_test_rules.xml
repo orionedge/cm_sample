@@ -43,11 +43,15 @@
         <!-- If not present, the default value for dotAll is false.  -->
         <!-- Here, we capture everything inside of the braces of "if ()" -->
         <regex pattern="[\s]if[\s]*\((.*?)\)[\s]*{" dotAll="true">
+            <!-- You can access groups via $1. -->
+            <!-- If your string contains a $ followed by a number that should not be replaced, escape the dollar \$ -->
+            <!-- If your string contains a \$ followed by a number that should not be replaced, escape the slash \\$ -->
+            <!-- Tabs and newlines should also be escaped. -->
             <mutation text=" if (!($1)) {"/>
         </regex>
     </rules>
 
     <commands>
-        <command group="test" expected-return="0" working-directory="./test">flutter test units</command>
+        <command group="test" expected-return="0" working-directory="./test">flutter test .</command>
     </commands>
 </mutations>
