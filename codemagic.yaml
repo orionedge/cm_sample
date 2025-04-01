@@ -115,6 +115,7 @@ workflows:
 
       - name: Install Dependencies
         script: |
+          echo "Downloading Dependencies..."
           flutter pub get
 
       - name: Run Code Analysis
