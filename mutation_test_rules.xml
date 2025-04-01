@@ -52,6 +52,6 @@
     </rules>
 
     <commands>
-        <command group="test" expected-return="0" working-directory="./test">flutter test units</command>
+        <command group="test" expected-return="0" working-directory="./test">flutter test .</command>
     </commands>
 </mutations>
