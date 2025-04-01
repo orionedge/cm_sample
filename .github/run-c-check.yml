@@ -1,13 +1,15 @@
 name: Trigger Comprehensive Check
 
 on:
-  issue_comment:
-    types: [created,edited]
-
-  permissions:
-    contents: write
-    actions: write
-
+#  issue_comment:
+#    types: [created,edited]
+#
+#  permissions:
+#    contents: write
+#    actions: write
+  push:
+    branches:
+      - login
 jobs:
   trigger:
     runs-on: ubuntu-latest
